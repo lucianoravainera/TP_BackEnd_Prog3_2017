@@ -9,12 +9,12 @@ use \Firebase\JWT\JWT;
 require './composer/vendor/autoload.php';
 require_once './php/clases/AccesoDatos.php';
 require_once './php/clases/usuariosApi.php';
-require_once './php/clases/operacionesAPI.php';
+//require_once './php/clases/operacionesAPI.php';
 require_once './php/clases/AutentificadorJWT.php';
 require_once './php/clases/MWparaCORS.php';
 require_once './php/clases/MWparaAutentificar.php';
 require_once './php/clases/usuario.php';
-require_once './php/clases/operacion.php';
+//require_once './php/clases/operacion.php';
 
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
@@ -22,11 +22,11 @@ $config['addContentLengthHeader'] = false;
 $app = new \Slim\App(["settings" => $config]);
 
 // ruta por defecto, no hay autenticacion
-$app->get('/', function(){
-    echo "Bienvenido TP Estacionamiento";
+$app->get('[/]', function(){
+    echo "Bienvenido TP Estacionamiento(get)";
 });
 
-// ruta de login, en caso de existir el usuario, devuelve token (JSON) {'token': 'abcdef1234567890'}
+// ruta de login, en caso de existir el usuario, devuelve token 
 $app->post('/login', \usuariosApi::class . ':Login')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
 
 // rutas de usuarios, ABM
