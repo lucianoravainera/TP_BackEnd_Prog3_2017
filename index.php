@@ -30,24 +30,35 @@ $app->get('[/]', function(){
 $app->post('/login', \usuariosApi::class . ':Login')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
 
 // rutas de usuarios, ABM
-$app->group('/empleados', function () {
-    //$this->get('/{id}', \empleadosApi::class . ':traerUno');
-    $this->get('[/]', \empleadosApi::class . ':traerTodos');  // traer todos los usuarios que no sean administradores
-    $this->post('[/]', \empleadosApi::class . ':altaEmpleado'); // Dar de alta un nuevo usuario
-    $this->delete('/', \empleadosApi::class . ':borrarUsuario'); // Eliminar un usuario, baja física
-    $this->put('/', \empleadosApi::class . ':suspenderUsuario'); // Suspender un usuario, no puede loguear, baja lógica
-    $this->group('/ingresos', function() {
-        $this->get('/{id}', \empleadosApi::class . ':ingresos'); // Devuelve todos los ingresos del ID pasado
-        $this->get('[/]', \empleadosApi::class . ':ingresos'); // Devuelve todos los ingresos
+$app->group('/usuarios', function () {
+    $this->get('[/]', \usuariosApi::class . ':traerTodos');  // traer todos los usuarios
+    $this->post('[/]', \usuariosApi::class . ':altaUsuario'); // Dar de alta un nuevo usuario
+    $this->delete('[/]', \usuariosApi::class . ':borrarUsuario'); // Eliminar un usuario, baja física (id constraint en db, no usar)
+    $this->put('[/]', \usuariosApi::class . ':suspenderUsuario'); // Suspender un usuario, no puede loguear, baja lógica
+    $this->group('/ingresos', function() {              // Grupo de ingresos al sistema, se registra solo si está autentificado
+        //$this->get('/cantidad/getpdf[/]', \usuariosApi::class . ':generarPDF'); // Devuelve de todos los ingresos por usuario en pdf
+        $this->get('/cantidad[/]', \operacionesAPI::class . ':cantidadOperaciones'); // Devuelve cantidad de operaciones por usuario
+        $this->post('/getpdf[/]', \usuariosApi::class . ':generarPDF'); // Devuelve informe de todos los ingresos en PDF
+        $this->post('/getexcel[/]', \usuariosApi::class . ':generarExcel'); // Devuelve informe de todos los ingresos en Excel
+        $this->get('/{id}', \usuariosApi::class . ':ingresos'); // Devuelve todos los ingresos del ID pasado
+        $this->post('[/]', \usuariosApi::class . ':ingresos'); // Devuelve todos los ingresos
     });
-})->add(\empleadosApi::class . ':esAdmin')->add(\MWparaAutentificar::class . ':VerificarUsuario')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+})->add(\usuariosApi::class . ':esAdmin')->add(\MWparaAutentificar::class . ':VerificarUsuario')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
 
-$app->group('/productos', function () {
-    $this->post('[/]', \productosAPI::class . ':altaProducto')->add(\empleadosApi::class . ':esAdmin');
-    $this->get('[/]', \productosAPI::class . ':traerTodos');
-    $this->delete('[/]', \productosAPI::class . ':borrarProducto')->add(\empleadosApi::class . ':esAdmin');
-    $this->put('[/]', \productosAPI::class . ':modificarProducto')->add(\empleadosApi::class . ':esAdmin');
-})->add(\MWparaAutentificar::class . ':contadorLogin')->add(\MWparaAutentificar::class . ':VerificarUsuario')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
+// rutas de operaciones y cocheras, ABM
+$app->group('/operaciones', function () {
+    $this->get('[/]', \operacionesAPI::class . ':traerTodas');  // Trae todas las operaciones
+    $this->post('/getpdf[/]', \operacionesAPI::class . ':generarPDF'); // Devuelve un archivo de todas las operaciones en PDF
+    $this->post('[/]', \operacionesAPI::class . ':altaOperacion'); // Da de alta una nueva operacion
+    $this->delete('[/]', \operacionesAPI::class . ':eliminarOperacion'); // Elimina una operacion por ID
+    $this->put('[/]', \operacionesAPI::class . ':bajaOperacion'); // Operacion finalizada, egreso de vehiculo
+    $this->group('/cocheras', function() {
+        $this->post('/estadisticas[/]', \operacionesAPI::class . ':estadisticas'); // Devuelve todas las estadisticas de uso de las cocheras
+        //$this->get('/estadisticas/getpdf[/]', \operacionesAPI::class . ':generarPDF'); // Devuelve un archivo de todas las operaciones en PDF
+        $this->get('/{id}', \operacionesAPI::class . ':estaOcupada');  // Devuelve si la cochera esta ocupada o no
+        $this->get('[/]', \operacionesAPI::class . ':TraerEstacionados');    // Devuelve todas las cocheras ocupadas
+    });
+})->add(\MWparaAutentificar::class . ':VerificarUsuario')->add(\MWparaCORS::class . ':HabilitarCORSTodos');
 
 $app->run();
 
