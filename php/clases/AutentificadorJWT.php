@@ -14,7 +14,7 @@ class AutentificadorJWT
         
         $payload = array(
         	'iat'=>$ahora,
-            'exp' => $ahora + (60* 360), //6 horas de time out
+            'exp' => $ahora + (60* 1), //(60* 360), //6 horas de time out
             'aud' => self::Aud(),
             'data' => $datos,
             'app'=> "TP Estacionamiento"
